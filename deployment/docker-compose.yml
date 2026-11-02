@@ -1,0 +1,25 @@
+services:
+  remotefix-server:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    environment:
+      REMOTEFIX_CODE_TTL_SECONDS: "300"
+      REMOTEFIX_SESSION_TTL_SECONDS: "1800"
+      REMOTEFIX_CREATE_LIMIT_PER_MINUTE: "5"
+      REMOTEFIX_JOIN_LIMIT_PER_MINUTE: "12"
+      REMOTEFIX_MAX_MESSAGE_BYTES: "32768"
+      REMOTEFIX_SIGNAL_LIMIT_PER_MINUTE: ${REMOTEFIX_SIGNAL_LIMIT_PER_MINUTE:-180}
+      REMOTEFIX_STUN_URLS: ${REMOTEFIX_STUN_URLS:-stun:stun.l.google.com:19302}
+      REMOTEFIX_TURN_URLS: ${REMOTEFIX_TURN_URLS:-}
+      REMOTEFIX_TURN_SHARED_SECRET: ${REMOTEFIX_TURN_SHARED_SECRET:-}
+      REMOTEFIX_TURN_CREDENTIAL_TTL_SECONDS: ${REMOTEFIX_TURN_CREDENTIAL_TTL_SECONDS:-3600}
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
