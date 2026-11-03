@@ -49,3 +49,9 @@ python -m compileall -q server/app
 ```
 
 Android build and device checks are described in [docs/TESTING.md](docs/TESTING.md). See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/API.md](docs/API.md), [docs/SECURITY.md](docs/SECURITY.md), and [docs/INSTALLATION.md](docs/INSTALLATION.md).
+
+## Project presentation
+
+[RemoteFix overview and TV repair workflow on Mac](docs/RemoteFix-overview-and-TV-workflow-Mac.pptx)
+
+The deck explains the current Android and browser prototype, the support session, the target TV repair workflow, security boundaries, and the next validation steps. It distinguishes implemented features from planned TV support; real-device Android-to-browser video is not yet verified.
