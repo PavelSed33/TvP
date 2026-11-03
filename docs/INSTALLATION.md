@@ -14,7 +14,7 @@ Run `docker compose -f deployment/docker-compose.yml up --build`. The service bi
 
 ## HTTPS/WSS reverse proxy
 
-Install the sample file in `deployment/nginx/remotefix.conf`, replace `remotefix.example.com`, and provision certificates at the configured paths. Confirm WebSocket upgrade headers are preserved. Bind Uvicorn only to loopback or a private container network, and set trusted proxy addresses in the Uvicorn command/configuration when enabling proxy headers.
+Install the sample file in `deployment/nginx/remotefix.conf`, replace `remotefix.example.com`, and provision certificates at the configured paths. Confirm WebSocket upgrade headers are preserved. The Compose command enables Uvicorn proxy headers and trusts only `127.0.0.1` by default. Set `UVICORN_FORWARDED_ALLOW_IPS` to the exact IP address or comma-separated IP addresses that Uvicorn sees for your reverse proxy, for example in the environment before starting Compose. Do not use `*` on an internet-facing deployment. This lets rate limits use the real client address without trusting forwarded headers from arbitrary peers. Keep Uvicorn reachable only through the reverse proxy or a private network.
 
 ## Android/Smart TV
 

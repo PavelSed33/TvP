@@ -107,7 +107,11 @@ async def client_socket(websocket: WebSocket, session_id: str) -> None:
         _audit("client_connected", session)
         if session.technician_ws:
             await session.technician_ws.send_json({"type": "client_connected", "state": session.state})
-            await websocket.send_json({"type": "connection_request", "message": "A technician is requesting access"})
+            await websocket.send_json({
+                "type": "connection_request",
+                "message": "A technician is requesting access",
+                "expires_at": session.expires_at.isoformat(),
+            })
 
         while True:
             message = await _receive_message(websocket)
@@ -132,7 +136,6 @@ async def client_socket(websocket: WebSocket, session_id: str) -> None:
                 else:
                     if session.technician_ws:
                         await session.technician_ws.send_json({"type": "consent_result", "approved": False})
-                    _audit("consent_denied", session)
                     await _terminate(session, "consent_denied")
                     return
                 continue
@@ -187,7 +190,11 @@ async def technician_socket(websocket: WebSocket) -> None:
         })
         _audit("technician_joined", session)
         if session.client_ws:
-            await session.client_ws.send_json({"type": "connection_request", "message": "A technician is requesting access"})
+            await session.client_ws.send_json({
+                "type": "connection_request",
+                "message": "A technician is requesting access",
+                "expires_at": session.expires_at.isoformat(),
+            })
 
         while True:
             message = await _receive_message(websocket)
@@ -272,7 +279,7 @@ def _audit(event: str, session: Optional[RemoteSession]) -> None:
 
 
 def _peer_key(address: str) -> str:
-    # Forwarded headers are intentionally ignored; trust them only behind a configured proxy.
+    # Uvicorn supplies the forwarded client address only for explicitly trusted proxy peers.
     return address or "unknown"
 
 

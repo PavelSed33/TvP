@@ -309,8 +309,13 @@ class RemoteFixViewModel(application: Application) : AndroidViewModel(applicatio
             }
             "connection_request" -> {
                 if (!updateSessionNotification(R.string.notification_request, alert = true)) return
+                val sessionExpiresAt = message.optString("expires_at").takeIf(String::isNotBlank)
                 update {
-                    it.copy(status = SessionStatus.AWAITING_CLIENT_CONSENT, connectionRequest = true)
+                    it.copy(
+                        status = SessionStatus.AWAITING_CLIENT_CONSENT,
+                        connectionRequest = true,
+                        expiresAt = sessionExpiresAt ?: it.expiresAt,
+                    )
                         .withEvent(getApplication<Application>().getString(R.string.event_connection_request))
                 }
             }

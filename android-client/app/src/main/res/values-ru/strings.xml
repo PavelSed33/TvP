@@ -19,7 +19,7 @@
     <string name="screen_share_streaming">Экран транслируется</string>
     <string name="screen_share_error">Не удалось начать трансляцию экрана</string>
     <string name="connection_code">Передайте специалисту одноразовый код</string>
-    <string name="code_expiry">Код действует до: %1$s</string>
+    <string name="code_expiry">Действует до: %1$s</string>
     <string name="connection_request_explanation">Проверьте запрос. Подтверждение разрешит обмен сигналами сеанса; для показа экрана потребуется отдельное разрешение Android.</string>
     <string name="approve">Разрешить</string>
     <string name="deny">Отклонить</string>

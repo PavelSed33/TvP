@@ -19,7 +19,7 @@
     <string name="screen_share_streaming">Screen is being shared</string>
     <string name="screen_share_error">Screen sharing failed</string>
     <string name="connection_code">Share this one-time code with your technician</string>
-    <string name="code_expiry">Code expires: %1$s</string>
+    <string name="code_expiry">Expires at: %1$s</string>
     <string name="connection_request_explanation">Review the request. Approving allows the technician to exchange session signaling; screen sharing needs separate Android approval.</string>
     <string name="approve">Approve</string>
     <string name="deny">Deny</string>

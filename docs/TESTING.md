@@ -30,6 +30,6 @@ Install on an Android 8.0+ device. Check code creation, WebSocket auth, consent/
 6. Stop sharing from Android and confirm the browser stops rendering. Repeat using the notification Stop action.
 7. End the session from each peer. Repeat with mobile data, Wi-Fi, network interruption, and permission revocation.
 
-The current workspace has an isolated JDK 17, Gradle 8.13 wrapper, Android SDK Platform 36, Build Tools 36.0.0, and adb. `./gradlew :app:assembleDebug` succeeds, and the APK signature and archive contents verify. ADB device enumeration is blocked in this sandbox because ADB cannot create its user settings under `~/.android`; no device-side checks have been run. The Android-to-browser video path remains unverified. Server tests do not prove media transport. The WebRTC implementation remains in Stage 3 until the real stream is visibly confirmed.
+The Android build requires JDK 17 and Android SDK Platform 36. Run the build command above in an environment with those prerequisites installed. A successful APK build does not verify device behavior: the Android-to-browser video path still requires real-device validation. Server tests do not prove media transport. Keep the WebRTC implementation in Stage 3 until the real stream is visibly confirmed.
 
 The server suite covers code/token flow, expiry, rate limits, diagnostic allowlisting, consent gating, status/SDP relaying, and short-lived TURN credential signing. It does not substitute for TLS, Android lifecycle, codec, TURN reachability, or cross-network checks.

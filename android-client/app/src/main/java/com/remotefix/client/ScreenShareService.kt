@@ -242,7 +242,10 @@ class ScreenShareService : Service() {
                     is String -> listOf(value)
                     is JSONArray -> (0 until value.length()).mapNotNull(value::optString)
                     else -> emptyList()
-                }.filter { it.startsWith("stun:") || it.startsWith("turn:") || it.startsWith("turns:") }
+                }.filter {
+                    it.startsWith("stun:") || it.startsWith("stuns:") ||
+                        it.startsWith("turn:") || it.startsWith("turns:")
+                }
                 if (urls.isEmpty()) continue
                 val builder = PeerConnection.IceServer.builder(urls)
                 builder.setUsername(item.optString("username"))

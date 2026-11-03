@@ -13,6 +13,23 @@ from server.app.security import SlidingWindowLimiter
 
 
 class ApiFlowTests(unittest.TestCase):
+    def setUp(self):
+        self.original_limiters = (
+            server_main.creation_limiter,
+            server_main.join_limiter,
+            server_main.signaling_limiter,
+        )
+        server_main.creation_limiter = SlidingWindowLimiter(server_main.settings.create_limit_per_minute)
+        server_main.join_limiter = SlidingWindowLimiter(server_main.settings.join_limit_per_minute)
+        server_main.signaling_limiter = SlidingWindowLimiter(server_main.settings.signal_limit_per_minute)
+
+    def tearDown(self):
+        (
+            server_main.creation_limiter,
+            server_main.join_limiter,
+            server_main.signaling_limiter,
+        ) = self.original_limiters
+
     def test_health_and_panel_are_served(self):
         with TestClient(app) as client:
             self.assertEqual(client.get("/api/health").json(), {"status": "ok", "stage": "3-webrtc-in-progress"})
@@ -35,7 +52,9 @@ class ApiFlowTests(unittest.TestCase):
                     joined = technician.receive_json()
                     self.assertEqual(joined["type"], "joined")
                     self.assertTrue(joined["ice_servers"])
-                    self.assertEqual(client.receive_json()["type"], "connection_request")
+                    request = client.receive_json()
+                    self.assertEqual(request["type"], "connection_request")
+                    self.assertEqual(request["expires_at"], joined["expires_at"])
 
                     client.send_json({"type": "consent", "approved": True})
                     self.assertTrue(client.receive_json()["approved"])
@@ -61,6 +80,96 @@ class ApiFlowTests(unittest.TestCase):
 
                     technician.send_json({"type": "disconnect"})
                     self.assertEqual(client.receive_json()["type"], "session_ended")
+
+    def test_client_receives_session_expiry_when_it_connects_after_technician(self):
+        with TestClient(app) as api:
+            session = api.post("/api/sessions").json()
+            with api.websocket_connect("/ws/technician") as technician:
+                technician.send_json({"type": "join", "code": session["code"]})
+                joined = technician.receive_json()
+                self.assertEqual(joined["type"], "joined")
+
+                with api.websocket_connect("/ws/client/" + session["session_id"]) as client:
+                    client.send_json({"type": "authenticate", "token": session["client_token"]})
+                    self.assertEqual(client.receive_json()["type"], "authenticated")
+                    request = client.receive_json()
+                    self.assertEqual(request["type"], "connection_request")
+                    self.assertEqual(request["expires_at"], joined["expires_at"])
+
+    def test_invalid_client_token_does_not_consume_the_session(self):
+        with TestClient(app) as api:
+            session = api.post("/api/sessions").json()
+            with api.websocket_connect("/ws/client/" + session["session_id"]) as rejected:
+                rejected.send_json({"type": "authenticate", "token": "wrong-token"})
+                self.assertEqual(rejected.receive_json()["type"], "error")
+
+            with api.websocket_connect("/ws/client/" + session["session_id"]) as accepted:
+                accepted.send_json({"type": "authenticate", "token": session["client_token"]})
+                self.assertEqual(accepted.receive_json()["type"], "authenticated")
+
+    def test_duplicate_client_connection_cannot_replace_the_authenticated_client(self):
+        with TestClient(app) as api:
+            session = api.post("/api/sessions").json()
+            with api.websocket_connect("/ws/client/" + session["session_id"]) as first:
+                first.send_json({"type": "authenticate", "token": session["client_token"]})
+                self.assertEqual(first.receive_json()["type"], "authenticated")
+                original_socket = server_main.sessions.get_by_id(session["session_id"]).client_ws
+
+                with api.websocket_connect("/ws/client/" + session["session_id"]) as second:
+                    second.send_json({"type": "authenticate", "token": session["client_token"]})
+                    self.assertEqual(second.receive_json()["type"], "error")
+
+                self.assertIsNotNone(server_main.sessions.get_by_id(session["session_id"]))
+                self.assertIs(server_main.sessions.get_by_id(session["session_id"]).client_ws, original_socket)
+
+    def test_oversized_websocket_message_is_rejected_and_session_is_removed(self):
+        with TestClient(app) as api:
+            session = api.post("/api/sessions").json()
+            with api.websocket_connect("/ws/client/" + session["session_id"]) as client:
+                client.send_json({"type": "authenticate", "token": session["client_token"]})
+                self.assertEqual(client.receive_json()["type"], "authenticated")
+                client.send_text("x" * (server_main.settings.max_message_bytes + 1))
+                self.assertEqual(client.receive_json()["type"], "error")
+
+            self.assertIsNone(server_main.sessions.get_by_id(session["session_id"]))
+
+    def test_join_rate_limit_rejects_excessive_code_attempts(self):
+        original_limiter = server_main.join_limiter
+        server_main.join_limiter = SlidingWindowLimiter(2)
+        try:
+            with TestClient(app) as api:
+                responses = []
+                for _ in range(3):
+                    with api.websocket_connect("/ws/technician") as technician:
+                        technician.send_json({"type": "join", "code": "000000"})
+                        responses.append(technician.receive_json()["message"])
+                self.assertIn("invalid, expired, or already used", responses[0])
+                self.assertIn("invalid, expired, or already used", responses[1])
+                self.assertIn("Too many code attempts", responses[2])
+        finally:
+            server_main.join_limiter = original_limiter
+
+    def test_client_denial_terminates_both_websockets_and_removes_session(self):
+        with self.assertLogs("remotefix.security", level="INFO") as audit:
+            with TestClient(app) as api:
+                session = api.post("/api/sessions").json()
+                with api.websocket_connect("/ws/client/" + session["session_id"]) as client:
+                    client.send_json({"type": "authenticate", "token": session["client_token"]})
+                    self.assertEqual(client.receive_json()["type"], "authenticated")
+
+                    with api.websocket_connect("/ws/technician") as technician:
+                        technician.send_json({"type": "join", "code": session["code"]})
+                        self.assertEqual(technician.receive_json()["type"], "joined")
+                        self.assertEqual(client.receive_json()["type"], "connection_request")
+                        client.send_json({"type": "consent", "approved": False})
+                        self.assertEqual(client.receive_json()["type"], "session_ended")
+                        self.assertEqual(technician.receive_json(), {"type": "consent_result", "approved": False})
+                        self.assertEqual(technician.receive_json()["type"], "session_ended")
+
+                self.assertIsNone(server_main.sessions.get_by_id(session["session_id"]))
+
+        denial_events = [line for line in audit.output if "security_event=consent_denied" in line]
+        self.assertEqual(len(denial_events), 1)
 
     def test_turn_credentials_are_short_lived_and_session_scoped(self):
         original_settings = server_main.settings
