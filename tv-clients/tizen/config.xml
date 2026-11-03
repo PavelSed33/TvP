@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:tizen="http://tizen.org/ns/widgets"
+        id="https://remotefix.example/tizen-tv"
+        version="0.1.0"
+        viewmodes="maximized">
+  <tizen:application id="rfxremote1.RemoteFixTV" package="rfxremote1" required_version="5.5" />
+  <content src="index.html" />
+  <icon src="icon.png" />
+  <name>RemoteFix TV</name>
+  <description>Сеанс поддержки и диагностика телевизора</description>
+  <tizen:profile name="tv-samsung" />
+  <tizen:privilege name="http://tizen.org/privilege/internet" />
+  <access origin="*" subdomains="true" />
+  <tizen:metadata key="http://samsung.com/tv/metadata/use.network" value="true" />
+  <tizen:setting screen-orientation="landscape"
+                 context-menu="disable"
+                 background-support="disable"
+                 encryption="disable"
+                 install-location="auto" />
+</widget>

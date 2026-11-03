@@ -75,7 +75,7 @@ function handleMessage(message) {
       iceServers = Array.isArray(message.ice_servers) ? message.ice_servers : [];
       setStatus(stateLabel(message.state), "pending");
       screenMessage.textContent = message.state === "awaiting_consent" ? "Ожидание согласия клиента" : "Ожидание клиента";
-      screenDetail.textContent = "Клиент должен подтвердить запрос и отдельно разрешить захват экрана в Android.";
+      screenDetail.textContent = "Клиент должен подтвердить запрос. Показ экрана зависит от возможностей и разрешений устройства.";
       appendLog("Сервер принял код; запрос на подтверждение отправлен клиенту.");
       break;
     case "client_connected":
@@ -91,7 +91,7 @@ function handleMessage(message) {
         consentApproved = true;
         setStatus("Клиент подтвердил подключение", "active");
         screenMessage.textContent = "Ожидание разрешения на показ экрана";
-        screenDetail.textContent = "На Android нужно нажать «Разрешить показ экрана» и подтвердить системный запрос.";
+        screenDetail.textContent = "На устройстве нужно отдельно разрешить показ экрана, если платформа поддерживает захват.";
         appendLog("Клиент дал согласие на сеанс.");
       } else {
         consentApproved = false;
@@ -107,7 +107,7 @@ function handleMessage(message) {
       consentApproved = true;
       screenMessage.textContent = "Настраиваем защищённое видеосоединение";
       screenDetail.textContent = "После установления соединения здесь появится изображение экрана клиента.";
-      appendLog("Android подтвердил запуск разрешённого захвата экрана.");
+      appendLog("Клиент подтвердил запуск разрешённого источника экрана.");
       startPeerConnection().catch((error) => {
         setStatus("Не удалось настроить видеосвязь", "error");
         screenMessage.textContent = "Не удалось начать видеосвязь";
@@ -119,7 +119,7 @@ function handleMessage(message) {
       cleanupPeerConnection();
       setStatus("Показ экрана остановлен", "pending");
       screenMessage.textContent = "Показ экрана остановлен клиентом";
-      screenDetail.textContent = "Клиент может снова разрешить показ экрана в приложении Android.";
+      screenDetail.textContent = "Клиент может снова разрешить показ экрана, если его платформа это поддерживает.";
       appendLog("Клиент остановил трансляцию экрана.");
       break;
     case "answer":
@@ -194,7 +194,7 @@ async function startPeerConnection() {
     screenPlaceholder.hidden = true;
     fullscreenButton.disabled = false;
     remoteScreen.play().catch(() => appendLog("Нажмите на видео, чтобы начать воспроизведение в этом браузере."));
-    appendLog("Получен видеопоток экрана Android.");
+    appendLog("Получен видеопоток клиентского устройства.");
   };
   pc.onconnectionstatechange = () => {
     if (pc !== peerConnection) return;
@@ -226,7 +226,7 @@ async function startPeerConnection() {
   if (pc !== peerConnection) return;
   screenMessage.textContent = "Ожидание видеопотока";
   screenDetail.textContent = "Клиент разрешил показ экрана; браузер подключается автоматически.";
-  appendLog("SDP-предложение отправлено Android-клиенту.");
+  appendLog("SDP-предложение отправлено клиентскому устройству.");
 }
 
 async function restartIceConnection(pc, signalState) {
@@ -324,13 +324,13 @@ function updateDevice(data) {
   const model = [data.manufacturer, data.model].filter(Boolean).join(" ");
   setDetail("device-state", data.app_status || data.state || "Подключено");
   setDetail("device-model", model || "—");
-  setDetail("device-android", data.android_version || "—");
+  setDetail("device-platform", [data.platform, data.os_version || data.android_version].filter(Boolean).join(" ") || "—");
   setDetail("device-battery", data.battery_percent == null ? "—" : `${data.battery_percent}%`);
   setDetail("device-network", data.network_type || data.network || "—");
 }
 
 function clearDeviceDetails() {
-  for (const id of ["device-state", "device-model", "device-android", "device-battery", "device-network"]) {
+  for (const id of ["device-state", "device-model", "device-platform", "device-battery", "device-network"]) {
     setDetail(id, id === "device-state" ? "Нет данных" : "—");
   }
 }

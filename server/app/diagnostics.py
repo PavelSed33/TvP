@@ -6,6 +6,8 @@ from typing import Any, Dict
 DEVICE_INFO_FIELDS = {
     "manufacturer",
     "model",
+    "platform",
+    "os_version",
     "android_version",
     "app_version",
     "battery_percent",
@@ -68,7 +70,7 @@ def _sanitize_device_info(payload: Dict[str, Any]) -> Dict[str, Any]:
         if key not in payload:
             continue
         value = payload[key]
-        if key in {"manufacturer", "model", "android_version", "app_version"}:
+        if key in {"manufacturer", "model", "platform", "os_version", "android_version", "app_version"}:
             if isinstance(value, str):
                 result[key] = value[:100]
         elif key in {"battery_percent", "free_ram_mb", "free_storage_mb"}:

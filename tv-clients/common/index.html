@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#07111f">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https: wss:; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'">
+    <title>RemoteFix TV</title>
+    <link rel="stylesheet" href="app.css">
+  </head>
+  <body>
+    <main class="layout">
+      <header class="topbar">
+        <div class="brand-mark" aria-hidden="true">RF</div>
+        <div>
+          <p class="eyebrow">УДАЛЁННАЯ ДИАГНОСТИКА</p>
+          <h1>RemoteFix TV</h1>
+        </div>
+        <div id="status" class="status" role="status" aria-live="polite">Не подключено</div>
+      </header>
+
+      <section class="card setup-card" aria-labelledby="setup-title">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">СЕРВЕР ПОДДЕРЖКИ</p>
+            <h2 id="setup-title">Адрес RemoteFix</h2>
+          </div>
+          <span id="platform-name" class="platform-pill">Smart TV</span>
+        </div>
+        <div class="server-row">
+          <label class="sr-only" for="server-url">HTTPS-адрес сервера</label>
+          <input id="server-url" type="url" inputmode="url" autocomplete="url" placeholder="https://support.example.com">
+          <button id="save-server" class="button secondary" type="button">Сохранить адрес</button>
+        </div>
+        <p class="helper">Используйте HTTPS-сервер RemoteFix. Адрес хранится только на этом телевизоре.</p>
+      </section>
+
+      <section class="grid">
+        <article class="card session-card" aria-labelledby="session-title">
+          <p class="eyebrow">СЕАНС ПОДДЕРЖКИ</p>
+          <h2 id="session-title">Подключите специалиста</h2>
+          <p id="session-detail" class="muted">Создайте одноразовый код. Специалист введёт его в панели на компьютере.</p>
+          <div id="code-panel" class="code-panel" hidden>
+            <span class="code-caption">ОДНОРАЗОВЫЙ КОД</span>
+            <strong id="connection-code" class="connection-code">------</strong>
+            <span id="expiry" class="helper"></span>
+          </div>
+          <div id="consent-panel" class="consent-panel" hidden role="alert" aria-live="assertive">
+            <h3>Запрос на подключение</h3>
+            <p>Специалист сможет обмениваться диагностическими данными. Передача экрана запускается отдельно.</p>
+            <div class="actions">
+              <button id="approve" class="button primary" type="button">Разрешить</button>
+              <button id="deny" class="button danger" type="button">Отклонить</button>
+            </div>
+          </div>
+          <div class="actions main-actions">
+            <button id="create-session" class="button primary" type="button">Создать код</button>
+            <button id="disconnect" class="button danger" type="button" disabled>Завершить сеанс</button>
+          </div>
+          <p id="error" class="error" role="alert" hidden></p>
+        </article>
+
+        <article class="card capability-card" aria-labelledby="capability-title">
+          <p class="eyebrow">СОСТОЯНИЕ ПЛАТФОРМЫ</p>
+          <h2 id="capability-title">Возможности телевизора</h2>
+          <dl class="capabilities">
+            <div><dt>WebRTC</dt><dd id="webrtc-state">Проверяем…</dd></div>
+            <div><dt>Захват экрана</dt><dd id="capture-state">Проверяем…</dd></div>
+            <div><dt>Диагностика</dt><dd id="diagnostics-state">Доступна</dd></div>
+          </dl>
+          <p id="platform-note" class="platform-note"></p>
+          <button id="share-screen" class="button secondary share-button" type="button" disabled>Разрешить показ экрана</button>
+          <button id="send-diagnostics" class="button quiet" type="button" disabled>Отправить диагностику</button>
+        </article>
+      </section>
+
+      <footer>Подключение начнётся только после вашего согласия. Отключение доступно на этом экране.</footer>
+    </main>
+    <script src="platform.js"></script>
+    <script src="client-core.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

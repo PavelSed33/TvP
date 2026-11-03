@@ -433,6 +433,8 @@ class RemoteFixViewModel(application: Application) : AndroidViewModel(applicatio
     private fun DeviceDiagnostics.toDeviceJson(): JSONObject = JSONObject()
         .put("manufacturer", manufacturer)
         .put("model", model)
+        .put("platform", "Android")
+        .put("os_version", androidVersion)
         .put("android_version", androidVersion)
         .put("app_version", appVersion)
         .put("battery_percent", batteryPercent ?: JSONObject.NULL)

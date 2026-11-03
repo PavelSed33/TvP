@@ -58,7 +58,7 @@ The server sends `joined` with a state, expiry, and the session's ICE server lis
 
 - `offer` and `answer`: `payload.sdp` string, up to 24 KB.
 - `ice_candidate`: `payload.candidate`, optional `sdp_mid`, optional non-negative `sdp_mline_index`.
-- `device_info`: only manufacturer, model, Android/app version, battery percentage, free RAM/storage, Wi-Fi flag, network type, and app status are forwarded.
+- `device_info`: only manufacturer, model, platform/OS version, Android/app version, battery percentage, free RAM/storage, Wi-Fi flag, network type, and app status are forwarded.
 - `diagnostics`: `payload.checks` entries with an allowlisted check name and status. Free-text details, IP addresses, personal content, and unknown keys are dropped.
 - `screen_share_ready` and `screen_share_stopped`: empty sanitized payloads to update the technician's view.
 - Every frame is limited to 32 KB by default. Unknown message types are rejected.

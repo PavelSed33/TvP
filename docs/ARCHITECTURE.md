@@ -22,7 +22,7 @@ The server keeps sessions in memory. Run one worker and one server instance; res
 3. **WebRTC source:** Android screen capture, peer connection, SDP/ICE relay, browser video renderer, STUN, optional TURN credential issuance, and one browser ICE restart attempt implemented. The debug APK builds successfully. **Not complete:** real Android-to-browser video verification. No later stage should be treated as started until that stream is demonstrated.
 4. Diagnostics and safe fix tools: initial read-only diagnostics exist; deeper diagnostics and repair flows are pending.
 5. Opt-in AccessibilityService controls: pending and subject to Android restrictions.
-6. Android TV UI and device-specific support: pending.
+6. **Smart TV clients:** Samsung Tizen and LG webOS packages provide a consent-gated session and diagnostics UI. Video is capability-gated: Samsung WebRTC varies by model, while LG limits WebRTC to contracted partner apps. TV firmware must expose a user-approved screen-capture source before video support can be considered complete.
 
 ## Session and media lifecycle
 

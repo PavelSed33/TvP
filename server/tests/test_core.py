@@ -50,11 +50,19 @@ class SecurityTests(unittest.TestCase):
         payload = sanitize_payload("device_info", {
             "manufacturer": "Example",
             "model": "TV 1",
+            "platform": "Tizen",
+            "os_version": "8.0",
             "battery_percent": 87,
             "ip_address": "192.0.2.1",
             "photos": ["private"],
         })
-        self.assertEqual(payload, {"manufacturer": "Example", "model": "TV 1", "battery_percent": 87})
+        self.assertEqual(payload, {
+            "manufacturer": "Example",
+            "model": "TV 1",
+            "platform": "Tizen",
+            "os_version": "8.0",
+            "battery_percent": 87,
+        })
 
     def test_diagnostics_reject_unstructured_text(self):
         with self.assertRaises(ValueError):

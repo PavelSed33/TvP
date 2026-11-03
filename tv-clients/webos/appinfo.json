@@ -1,0 +1,15 @@
+{
+  "id": "org.remotefix.tv.webos.app",
+  "title": "RemoteFix TV",
+  "type": "web",
+  "main": "index.html",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "version": "0.1.0",
+  "vendor": "RemoteFix",
+  "appDescription": "Сеанс поддержки и диагностика телевизора",
+  "resolution": "1920x1080",
+  "iconColor": "#07111f",
+  "requiredMemory": 20,
+  "disableBackHistoryAPI": true
+}

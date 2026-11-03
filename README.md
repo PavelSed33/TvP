@@ -12,7 +12,7 @@ RemoteFix is a consent-based remote-support project. Signaling, the Android clie
 - The server returns STUN configuration and, when configured, short-lived TURN REST credentials to both peers. The long-lived TURN secret stays on the server.
 - The Android app displays the connection code, requests support consent, keeps a visible session notification, collects limited diagnostics, and provides emergency disconnect.
 
-Remote input/control, technician accounts, and Android TV packaging are not implemented. The browser makes one ICE restart attempt after a failed connection; recovery across repeated network changes still needs device validation. `assembleDebug` succeeds with JDK 17, Gradle 8.13, and Android SDK Platform 36. Real-device media validation remains outstanding; ADB enumeration is blocked in this sandbox by its inability to write Android user settings.
+Remote input/control, technician accounts, and Android TV packaging are not implemented. Samsung Tizen and LG webOS TV client packages now include a consent-gated session and diagnostics flow. Video remains conditional on each TV's WebRTC and display-capture APIs; LG requires partner access for WebRTC. The browser makes one ICE restart attempt after a failed connection; recovery across repeated network changes still needs device validation. `assembleDebug` succeeds with JDK 17, Gradle 8.13, and Android SDK Platform 36. Real-device media validation remains outstanding; ADB enumeration was blocked in the sandbox because it could not write Android user settings.
 
 ## Run the server locally
 
@@ -30,6 +30,8 @@ Open <http://127.0.0.1:8000> for local panel work. The Android app requires an H
 ## Android and technician platforms
 
 See [android-client/README.md](android-client/README.md). Build requirements: JDK 17, Android SDK Platform 36, Android Studio, and an Android 8.0+ device. The technician panel is a web app and can run in Safari, Chrome, or another supported WebRTC browser on macOS and Windows. There is no native macOS technician app.
+
+For Samsung Tizen and LG webOS client packages, see [tv-clients/README.md](tv-clients/README.md). A TV model and its firmware must expose the required WebRTC and screen-capture APIs for live video.
 
 ## Deployment
 
@@ -54,4 +56,4 @@ Android build and device checks are described in [docs/TESTING.md](docs/TESTING.
 
 [RemoteFix overview and TV repair workflow on Mac](docs/RemoteFix-overview-and-TV-workflow-Mac.pptx)
 
-The deck explains the current Android and browser prototype, the support session, the target TV repair workflow, security boundaries, and the next validation steps. It distinguishes implemented features from planned TV support; real-device Android-to-browser video is not yet verified.
+The presentation describes the support workflow, the implemented Android and TV session clients, the technician panel, and the limits that still require testing on real TV models and firmware.

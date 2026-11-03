@@ -39,16 +39,16 @@
           <div class="section-heading">
             <div>
               <h2>Экран устройства</h2>
-              <p class="muted">Видео передаётся напрямую между браузером и Android через WebRTC.</p>
+              <p class="muted">Видео передаётся напрямую между браузером и клиентским устройством через WebRTC.</p>
             </div>
             <button id="fullscreen-button" class="button quiet" type="button" disabled>На весь экран</button>
           </div>
           <div class="screen-placeholder" aria-live="polite">
             <div class="screen-icon" aria-hidden="true">▣</div>
             <strong id="screen-message">Ожидание подключения</strong>
-            <span id="screen-detail">Здесь будет отображаться экран клиента после согласия и подключения Android-клиента.</span>
+            <span id="screen-detail">Здесь будет отображаться экран клиента после согласия и запуска поддерживаемой функции захвата.</span>
           </div>
-          <video id="remote-screen" class="remote-screen" autoplay muted playsinline hidden aria-label="Трансляция экрана Android-устройства"></video>
+          <video id="remote-screen" class="remote-screen" autoplay muted playsinline hidden aria-label="Трансляция экрана клиентского устройства"></video>
         </article>
 
         <article class="card device-card">
@@ -56,7 +56,7 @@
           <dl id="device-details" class="details">
             <div><dt>Состояние</dt><dd id="device-state">Нет данных</dd></div>
             <div><dt>Модель</dt><dd id="device-model">—</dd></div>
-            <div><dt>Android</dt><dd id="device-android">—</dd></div>
+            <div><dt>Платформа</dt><dd id="device-platform">—</dd></div>
             <div><dt>Батарея</dt><dd id="device-battery">—</dd></div>
             <div><dt>Сеть</dt><dd id="device-network">—</dd></div>
           </dl>
