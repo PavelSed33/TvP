@@ -62,14 +62,18 @@ class ScreenShareService : Service() {
             ACTION_START -> startCapture(intent)
             ACTION_SIGNAL -> {
                 val signalSessionId = intent.getStringExtra(EXTRA_SESSION_ID)
-                if (signalSessionId == supportSessionId && capturer != null && !stopping && !disposed) {
+                if (supportSessionId == null) {
+                    stopSelf(startId)
+                } else if (signalSessionId == supportSessionId && capturer != null && !stopping && !disposed) {
                     receiveSignal(intent.getStringExtra(EXTRA_SIGNAL).orEmpty())
                 } else if (capturer == null && signalSessionId == supportSessionId) {
                     stopSelf(startId)
                 }
             }
             ACTION_STOP -> {
-                if (intent.getStringExtra(EXTRA_SESSION_ID) == supportSessionId) {
+                if (supportSessionId == null) {
+                    stopSelf(startId)
+                } else if (intent.getStringExtra(EXTRA_SESSION_ID) == supportSessionId) {
                     stopSharing(notifyTechnician = true, finalState = ScreenShareState.STOPPED)
                 }
             }

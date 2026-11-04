@@ -1,4 +1,4 @@
-import { openTechnicianSocket, sendMessage } from "./signaling.js";
+import { openTechnicianSocket, sendMessage, shouldQueueRemoteIceCandidate } from "./signaling.js";
 
 const form = document.querySelector("#connect-form");
 const codeInput = document.querySelector("#connection-code");
@@ -11,6 +11,7 @@ const screenMessage = document.querySelector("#screen-message");
 const screenDetail = document.querySelector("#screen-detail");
 const screenPlaceholder = document.querySelector(".screen-placeholder");
 const remoteScreen = document.querySelector("#remote-screen");
+const diagnosticChecks = document.querySelector("#diagnostic-checks");
 let socket = null;
 let peerConnection = null;
 let connected = false;
@@ -146,6 +147,7 @@ function handleMessage(message) {
       break;
     case "diagnostics":
       updateDevice(message.payload || {});
+      updateDiagnosticChecks(message.payload?.checks);
       appendLog("Получен диагностический отчёт.");
       break;
     case "session_ended":
@@ -269,7 +271,7 @@ async function receiveIceCandidate(payload) {
     sdpMid: payload.sdp_mid ?? null,
     sdpMLineIndex: payload.sdp_mline_index ?? null,
   });
-  if (remoteDescriptionPending || !pc.remoteDescription) {
+  if (shouldQueueRemoteIceCandidate(pc, remoteDescriptionPending)) {
     if (pendingIceCandidates.length >= MAX_PENDING_ICE_CANDIDATES) {
       throw new Error("Слишком много ожидающих ICE-кандидатов.");
     }
@@ -329,10 +331,43 @@ function updateDevice(data) {
   setDetail("device-network", data.network_type || data.network || "—");
 }
 
+function updateDiagnosticChecks(checks) {
+  const names = {
+    internet: "Интернет",
+    server_connection: "Сервер",
+    screen_capture_permission: "Захват экрана",
+    accessibility_permission: "Управление",
+    storage: "Память",
+    wifi: "Wi-Fi",
+    foreground_service: "Фоновый сервис",
+  };
+  const statuses = {
+    ok: "ОК",
+    warning: "Внимание",
+    error: "Ошибка",
+    unsupported: "Недоступно",
+    unknown: "Нет данных",
+  };
+  diagnosticChecks.replaceChildren();
+  for (const check of Array.isArray(checks) ? checks : []) {
+    if (!check || typeof check.name !== "string") continue;
+    const row = document.createElement("div");
+    const name = document.createElement("dt");
+    const value = document.createElement("dd");
+    name.textContent = names[check.name] || check.name;
+    value.textContent = statuses[check.status] || statuses.unknown;
+    value.dataset.status = statuses[check.status] ? check.status : "unknown";
+    row.append(name, value);
+    diagnosticChecks.append(row);
+  }
+  diagnosticChecks.hidden = diagnosticChecks.children.length === 0;
+}
+
 function clearDeviceDetails() {
   for (const id of ["device-state", "device-model", "device-platform", "device-battery", "device-network"]) {
     setDetail(id, id === "device-state" ? "Нет данных" : "—");
   }
+  updateDiagnosticChecks([]);
 }
 
 function setDetail(id, value) {
