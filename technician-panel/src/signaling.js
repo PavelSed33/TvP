@@ -25,3 +25,7 @@ export function sendMessage(socket, message) {
   socket.send(JSON.stringify(message));
   return true;
 }
+
+export function shouldQueueRemoteIceCandidate(peerConnection, remoteDescriptionPending) {
+  return remoteDescriptionPending || !peerConnection.remoteDescription || peerConnection.signalingState === "have-local-offer";
+}

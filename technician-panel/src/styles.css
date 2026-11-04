@@ -48,6 +48,10 @@ h2 { margin-bottom: 7px; font-size: 17px; letter-spacing: -.015em; }
 .details div { display: grid; grid-template-columns: 92px 1fr; gap: 12px; border-bottom: 1px solid #edf0f3; padding: 10px 0; font-size: 12px; }
 .details dt { color: #778193; }
 .details dd { margin: 0; color: #354052; font-weight: 600; overflow-wrap: anywhere; }
+.diagnostic-checks { margin-top: 8px; }
+.diagnostic-checks dd[data-status="ok"] { color: #187448; }
+.diagnostic-checks dd[data-status="warning"] { color: #8a5b00; }
+.diagnostic-checks dd[data-status="error"] { color: #ad2733; }
 .log-card .section-heading { margin-bottom: 16px; }
 .event-log { list-style: none; padding: 0; margin: 0; max-height: 245px; overflow: auto; border-top: 1px solid #edf0f3; }
 .event-log li { display: grid; grid-template-columns: 68px 1fr; gap: 12px; padding: 9px 2px; border-bottom: 1px solid #f0f2f5; color: #485467; font-size: 12px; line-height: 1.5; }

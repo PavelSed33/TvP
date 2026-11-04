@@ -48,6 +48,8 @@ For TURN relay support, configure `REMOTEFIX_TURN_URLS` and a private `REMOTEFIX
 ```sh
 python -m unittest discover -s server/tests -v
 python -m compileall -q server/app
+node --test tv-clients/tests/client-core.test.js
+npm --prefix technician-panel test
 ```
 
 Android build and device checks are described in [docs/TESTING.md](docs/TESTING.md). See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/API.md](docs/API.md), [docs/SECURITY.md](docs/SECURITY.md), and [docs/INSTALLATION.md](docs/INSTALLATION.md).

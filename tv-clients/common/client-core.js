@@ -207,7 +207,10 @@
 
   function respondToRequest(approved) {
     if (!client.state.connectionRequest) return false;
-    var sent = send("consent", { approved: !!approved });
+    var sent = false;
+    if (client.socket && client.socket.readyState === 1) {
+      sent = client.socket.send(JSON.stringify({ type: "consent", approved: !!approved })) !== false;
+    }
     if (sent) update({ connectionRequest: false, detail: approved ? "Ожидаем подтверждение сеанса." : "Отклоняем запрос…" });
     else update({ error: "Нет связи с сервером. Повторите попытку." });
     return sent;
@@ -298,6 +301,7 @@
       update({ error: "Получено предложение WebRTC без активного источника экрана." });
       return;
     }
+    client.remoteDescriptionReady = false;
     peer.setRemoteDescription({ type: "offer", sdp: payload.sdp }).then(function () {
       if (client.peerConnection !== peer) return null;
       client.remoteDescriptionReady = true;

@@ -7,6 +7,8 @@ Install `server/requirements-dev.txt`, then run the checks from the repository r
 ```sh
 python -m unittest discover -s server/tests -v
 python -m compileall -q server/app
+node --test tv-clients/tests/client-core.test.js
+npm --prefix technician-panel test
 ```
 
 Start the API and check `GET /api/health`, `POST /api/sessions`, and the technician panel at `/`. The session API and panel can run locally for interface work. Android requires an HTTPS endpoint because the app rejects cleartext HTTP.

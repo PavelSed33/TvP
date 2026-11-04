@@ -29,6 +29,7 @@ class MockPeerConnection {
   constructor(config) {
     this.config = config;
     this.addedTracks = [];
+    this.addedCandidates = [];
     this.closed = false;
     MockPeerConnection.last = this;
   }
@@ -36,7 +37,7 @@ class MockPeerConnection {
   setRemoteDescription(value) { this.remoteDescription = value; return Promise.resolve(); }
   createAnswer() { return Promise.resolve({ type: "answer", sdp: "v=0\r\nanswer" }); }
   setLocalDescription(value) { this.localDescription = value; return Promise.resolve(); }
-  addIceCandidate(value) { this.addedCandidate = value; return Promise.resolve(); }
+  addIceCandidate(value) { this.addedCandidates.push(value); return Promise.resolve(); }
   close() { this.closed = true; }
 }
 
@@ -95,6 +96,10 @@ async function testSessionConsentAndMediaSignaling() {
   await assert.rejects(client.startScreenShare(), /Сначала разрешите сеанс/);
   assert.equal(env._options.captureCalls || 0, 0);
   assert.equal(client.respondToRequest(true), true);
+  assert.deepEqual(
+    socket.sent.find(message => message.type === "consent"),
+    { type: "consent", approved: true }
+  );
   socket.receive({ type: "consent_result", approved: true });
   assert.equal(client.getState().status, "active");
   assert.ok(socket.sent.some(message => message.type === "device_info"));
@@ -108,6 +113,25 @@ async function testSessionConsentAndMediaSignaling() {
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(peer.remoteDescription.type, "offer");
   assert.ok(socket.sent.some(message => message.type === "answer"));
+
+  let finishRestart;
+  peer.setRemoteDescription = value => new Promise(resolve => {
+    finishRestart = () => {
+      peer.remoteDescription = value;
+      resolve();
+    };
+  });
+  socket.receive({ type: "offer", payload: { sdp: "v=0\r\nrestart-offer" } });
+  socket.receive({
+    type: "ice_candidate",
+    payload: { candidate: "candidate:restart", sdp_mid: "0", sdp_mline_index: 0 }
+  });
+  assert.equal(client.remoteDescriptionReady, false);
+  assert.equal(peer.addedCandidates.length, 0);
+  finishRestart();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(peer.addedCandidates.length, 1);
+  assert.equal(peer.addedCandidates[0].candidate, "candidate:restart");
 
   peer.onicecandidate({ candidate: { candidate: "candidate:1", sdpMid: "0", sdpMLineIndex: 0 } });
   assert.ok(socket.sent.some(message => message.type === "ice_candidate"));
